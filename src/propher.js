@@ -1,5 +1,6 @@
 // Calculate the paths between nodes for a given prufer series
-export function doPrufer(prufer){
+export function doPrufer(p){
+    let prufer = p.slice(0); // clone so we dont destory the copy we are given
     if (prufer.length === 0){
       return [1,2];
     }
