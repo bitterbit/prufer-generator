@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { doPrufer } from "./propher.js"; 
+	import { doPrufer } from "./prufer.js"; 
 
 	// let chart, graph;
 	let prufer = [];
@@ -15,6 +15,7 @@
 
 	onMount(async () => {
 		rednerChart(doPrufer(prufer));
+		prufer = []; // dont reset the string yet
 	})
 	
 	function rednerChart(paths){
@@ -30,8 +31,7 @@
 		let keyCode = event.keyCode;
 
 		if (key == 'x') {
-			prufer = [];
-			pruferString = "";
+			resetPrufer();
 			rednerChart([[1,2]]);
 			return;
 		}
@@ -47,6 +47,11 @@
 	function updatePrufer(char){
 		prufer.push(parseInt(char));
 		pruferString = prufer.join(", ");
+	}
+
+	function resetPrufer(){
+		prufer = [];
+		pruferString = "";
 	}
 	
 </script>
@@ -65,6 +70,10 @@
 <div class="container" align="center">	
 	<h1>Prüfer Generator</h1>
 	<h5>Press number keys to add items, Clear the list by pressing <code>x</code></h5>
+	{#if pruferString.length > 0}
 	<h2>{pruferString}</h2>
+	{:else}
+	<h1 style="color: #aaa">...</h1>
+	{/if}
 	<canvas id="canvasID" width="1000" height="300"></canvas>
 </div>
