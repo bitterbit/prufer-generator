@@ -1,23 +1,34 @@
 <script>
 	import { onMount } from 'svelte';
 	import { doPrufer } from "./prufer.js"; 
+	import { beforeUpdate, afterUpdate } from 'svelte';
+
+	let graphWidth;
 
 	// let chart, graph;
 	let prufer = [];
 	let pruferString = "";
 
-	updatePrufer(4);
-	updatePrufer(4);
-	updatePrufer(3);
-	updatePrufer(4);
-	updatePrufer(4);
-	updatePrufer(2);
+	addPruferNode(4);
+	addPruferNode(4);
+	addPruferNode(3);
+	addPruferNode(4);
+	addPruferNode(4);
+	addPruferNode(2);
 
 	onMount(async () => {
-		rednerChart(doPrufer(prufer));
-		prufer = []; // dont reset the string yet
+		setTimeout(() => {
+			rednerChart(doPrufer(prufer));
+			prufer = [];
+		}, 100);
 	})
-	
+
+	function onResize() {
+		setTimeout(() => {
+			rednerChart(doPrufer(prufer));
+		}, 100);
+	}
+
 	function rednerChart(paths){
 		let graph = new flowjs.DiGraph();
 		graph.addPaths(paths);
@@ -35,17 +46,28 @@
 			rednerChart([[1,2]]);
 			return;
 		}
+
+		if (key === "d") {
+			removeLastPruferNode();
+			rednerChart(doPrufer(prufer));
+			return true;
+		}
 		
 		var number = parseInt(key);
-		if (number != undefined && number >= 0 && number <= 9){
-			updatePrufer(number);
+		if (number != undefined && number > 0 && number <= 9){
+			addPruferNode(number);
+			rednerChart(doPrufer(prufer));
+			return;
 		}
-
-		rednerChart(doPrufer(prufer));
 	}
 
-	function updatePrufer(char){
+	function addPruferNode(char){
 		prufer.push(parseInt(char));
+		pruferString = prufer.join(", ");
+	}
+
+	function removeLastPruferNode(){
+		prufer.splice(prufer.length-1, 1);
 		pruferString = prufer.join(", ");
 	}
 
@@ -53,6 +75,8 @@
 		prufer = [];
 		pruferString = "";
 	}
+
+	
 	
 </script>
 
@@ -66,8 +90,8 @@
 	}
 </style>
 
-<svelte:window on:keydown={handleKeydown}/>
-<div class="container" align="center">	
+<svelte:window on:keydown={handleKeydown} on:resize={onResize} />
+<div class="container" align="center" bind:clientWidth={graphWidth}>	
 	<h1>Prüfer Generator</h1>
 	<h5>Press number keys to add items, Clear the list by pressing <code>x</code></h5>
 	{#if pruferString.length > 0}
@@ -75,5 +99,6 @@
 	{:else}
 	<h1 style="color: #aaa">...</h1>
 	{/if}
-	<canvas id="canvasID" width="1000" height="300"></canvas>
+
+	<canvas id="canvasID" width="{graphWidth-100}" height="350"></canvas>
 </div>
